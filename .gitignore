@@ -1,0 +1,28 @@
+# Build
+bin/
+obj/
+[Ll]og/
+[Ll]ogs/
+
+# Visual Studio / Rider / VS Code
+.vs/
+*.user
+*.suo
+*.sln.docstates
+.idea/
+.vscode/
+
+# Packages & artifacts
+packages/
+artifacts/
+*.nupkg
+*.snupkg
+
+# Tests
+[Tt]est[Rr]esult*/
+TestResults/
+
+# Misc
+*.tmp
+*.log
+*.cache

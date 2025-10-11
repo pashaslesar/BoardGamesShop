@@ -1,0 +1,131 @@
+﻿<Window x:Class="BoardGamesShop.MainWindow" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Title="Obchod deskových her" Height="750" Width="1100" Background="#F5F5DC">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="48"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid Grid.Row="0" Background="#FFF7E6">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Column="0" Text="Obchod deskových her" VerticalAlignment="Center" Margin="12,0" FontSize="18" FontWeight="Bold" Foreground="#574D35"/>
+            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="20,0">
+                <StackPanel Orientation="Horizontal" x:Name="GuestPanel">
+                    <Button x:Name="LoginButton" Content="Přihlásit" Click="LoginButton_Click" Background="#FF6C6C" Foreground="White" FontWeight="Bold" FontSize="12" Padding="5" Margin="0,0,10,0" BorderThickness="0" Cursor="Hand" HorizontalAlignment="Stretch" BorderBrush="#FF6C6C" Height="30"/>
+                    <Button x:Name="RegisterButton" Content="Registrovat" Click="RegisterButton_Click" Background="#FF6C6C" Foreground="White" FontWeight="Bold" FontSize="12" Padding="5" Margin="0,0,0,0" BorderThickness="0" Cursor="Hand" HorizontalAlignment="Stretch" BorderBrush="#FF6C6C" Height="30"/>
+                </StackPanel>
+                <StackPanel x:Name="UserBlock" Orientation="Horizontal" Visibility="Collapsed" Margin="12,0,0,0">
+                    <TextBlock Text="Uživatel:" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                    <TextBlock x:Name="UserNameText" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                    <Button x:Name="LogoutButton" Content="Odhlásit" Click="LogoutButton_Click" Background="#FF6C6C" Foreground="White" FontWeight="Bold" FontSize="12" Padding="5" Margin="0,0,10,0" BorderThickness="0" Cursor="Hand" HorizontalAlignment="Stretch" BorderBrush="#FF6C6C" Height="30"/>
+                </StackPanel>
+            </StackPanel>
+            <StackPanel x:Name="AdminPanel" Grid.Column="2" Visibility="Collapsed" Orientation="Horizontal" VerticalAlignment="Center" Margin="10,0">
+                <Button Content="Přidat hru" Click="AddGame_Click" Background="#FF6C6C" Foreground="White" FontWeight="Bold" FontSize="12" Padding="5" Margin="0,0,10,0" BorderThickness="0" Cursor="Hand" HorizontalAlignment="Stretch" BorderBrush="#FF6C6C" Height="30"/>
+                <Button Content="Upravit ceny" Click="EditPrices_Click" Background="#FF6C6C" Foreground="White" FontWeight="Bold" FontSize="12" Padding="5" Margin="0,0,10,0" BorderThickness="0" Cursor="Hand" HorizontalAlignment="Stretch" BorderBrush="#FF6C6C" Height="30"/>
+            </StackPanel>
+            <Button x:Name="CartButton" Grid.Column="3" Margin="0,0,12,0" VerticalAlignment="Center" Padding="10,6" Background="#4FC0CE" Foreground="White" BorderBrush="#4FC0CE" Click="CartButton_Click">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="🛒" Margin="0,0,6,0"/>
+                    <TextBlock Text="Košík"/>
+                    <Border Background="White" CornerRadius="10" Margin="8,0,0,0" Padding="6,0">
+                        <TextBlock x:Name="CartCountText" Foreground="#4FC0CE" Text="0"/>
+                    </Border>
+                </StackPanel>
+            </Button>
+        </Grid>
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="300"/>
+            </Grid.ColumnDefinitions>
+            <TabControl x:Name="MainTabs" Grid.Column="0" Background="#EAE0C8">
+                <TabControl.Resources>
+                    <Style TargetType="TabItem">
+                        <Setter Property="Background" Value="#EAE0C8"/>
+                        <Setter Property="BorderBrush" Value="#FFAD9C72"/>
+                        <Setter Property="Padding" Value="10,4"/>
+                    </Style>
+                </TabControl.Resources>
+                <TabItem Header="Všechny hry">
+                    <ScrollViewer>
+                        <WrapPanel x:Name="gamePanel"/>
+                    </ScrollViewer>
+                </TabItem>
+                <TabItem Header="Oblíbené">
+                    <ScrollViewer>
+                        <WrapPanel x:Name="favoritesPanel"/>
+                    </ScrollViewer>
+                </TabItem>
+            </TabControl>
+            <Grid Grid.Column="1" Background="#FFFBEF">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <StackPanel Margin="10">
+                    <TextBlock Text="Vyhledávání" FontSize="16" FontWeight="Bold" Margin="0,0,0,8"/>
+                    <DockPanel>
+                        <TextBox x:Name="SearchBox" Width="266" Height="28" Margin="0,0,5,0" TextChanged="SearchBox_TextChanged" ToolTip="Hledat podle názvu"/>
+                    </DockPanel>
+                </StackPanel>
+                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                    <StackPanel Margin="10" Orientation="Vertical">
+                        <StackPanel Margin="15, 12, 15, 12">
+                            <TextBlock Text="Žánry" FontWeight="Bold" Margin="0,0,0,5"/>
+                            <ListBox x:Name="GenresList" SelectionMode="Multiple" Background="Transparent" Foreground="#FFAD9C72" MaxHeight="250" BorderBrush="Transparent" SelectionChanged="GenresList_SelectionChanged"/>
+                        </StackPanel>
+                        <StackPanel Margin="15, 12, 15, 12">
+                            <TextBlock Text="Cena" FontWeight="Bold" Margin="0,0,0,5"/>
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
+                                <TextBlock Text="Od" VerticalAlignment="Center"/>
+                                <TextBox x:Name="PriceFromTextBox" Width="60" Margin="5,0" TextChanged="PriceTextBox_TextChanged"/>
+                                <TextBlock Text="Do" VerticalAlignment="Center" Margin="10,0,0,0"/>
+                                <TextBox x:Name="PriceToTextBox" Width="60" Margin="5,0" TextChanged="PriceTextBox_TextChanged"/>
+                            </StackPanel>
+                            <Slider x:Name="PriceSlider" Minimum="0" Maximum="19990" ValueChanged="PriceSlider_ValueChanged" Margin="0,0,0,5"/>
+                        </StackPanel>
+                        <StackPanel Margin="15, 12, 15, 12">
+                            <TextBlock Text="Věk" FontWeight="Bold" Margin="0,0,0,5"/>
+                            <WrapPanel>
+                                <RadioButton x:Name="Age0RadioButton" Content="0+" Tag="0" Margin="0,0,10,5" Checked="AgeRadioButton_Checked" PreviewMouseLeftButtonDown="AgeRadioButton_PreviewMouseLeftButtonDown"/>
+                                <RadioButton x:Name="Age4RadioButton" Content="4+" Tag="4" Margin="0,0,10,5" Checked="AgeRadioButton_Checked" PreviewMouseLeftButtonDown="AgeRadioButton_PreviewMouseLeftButtonDown"/>
+                                <RadioButton x:Name="Age10RadioButton" Content="10+" Tag="10" Margin="0,0,10,5" Checked="AgeRadioButton_Checked" PreviewMouseLeftButtonDown="AgeRadioButton_PreviewMouseLeftButtonDown"/>
+                                <RadioButton x:Name="Age14RadioButton" Content="14+" Tag="14" Margin="0,0,10,5" Checked="AgeRadioButton_Checked" PreviewMouseLeftButtonDown="AgeRadioButton_PreviewMouseLeftButtonDown"/>
+                                <RadioButton x:Name="Age16RadioButton" Content="16+" Tag="16" Margin="0,0,10,5" Checked="AgeRadioButton_Checked" PreviewMouseLeftButtonDown="AgeRadioButton_PreviewMouseLeftButtonDown"/>
+                                <RadioButton x:Name="Age18RadioButton" Content="18+" Tag="18" Margin="0,0,10,5" Checked="AgeRadioButton_Checked" PreviewMouseLeftButtonDown="AgeRadioButton_PreviewMouseLeftButtonDown"/>
+                            </WrapPanel>
+                        </StackPanel>
+                        <StackPanel Margin="15, 12, 15, 12">
+                            <TextBlock Text="Počet hráčů" FontWeight="Bold" Margin="0,0,0,5"/>
+                            <Slider x:Name="PlayerSlider" Minimum="0" Maximum="7" Value="0" TickFrequency="1" IsSnapToTickEnabled="True" ValueChanged="PlayerSlider_ValueChanged" />
+                            <UniformGrid Columns="8">
+                                <TextBlock Text="Nevadí" HorizontalAlignment="Center" FontSize="10"/>
+                                <TextBlock Text="1" HorizontalAlignment="Center" FontSize="10"/>
+                                <TextBlock Text="2" HorizontalAlignment="Center" FontSize="10"/>
+                                <TextBlock Text="3" HorizontalAlignment="Center" FontSize="10"/>
+                                <TextBlock Text="4" HorizontalAlignment="Center" FontSize="10"/>
+                                <TextBlock Text="5" HorizontalAlignment="Center" FontSize="10"/>
+                                <TextBlock Text="6" HorizontalAlignment="Center" FontSize="10"/>
+                                <TextBlock Text="Více" HorizontalAlignment="Center" FontSize="10"/>
+                            </UniformGrid>
+                        </StackPanel>
+                        <StackPanel Margin="15, 12, 15, 12" Height="95">
+                            <TextBlock Text="Délka hry" FontWeight="Bold" Margin="0,0,0,5"/>
+                            <WrapPanel>
+                                <RadioButton x:Name="PlayTime30CheckBox" Content="do 30 min" Margin="0,0,10,5" Checked="PlayTime_Checked" Unchecked="PlayTime_Checked" PreviewMouseLeftButtonDown="PlayTimeRadioButton_PreviewMouseLeftButtonDown"/>
+                                <RadioButton x:Name="PlayTime60CheckBox" Content="do 60 min" Margin="0,0,10,5" Checked="PlayTime_Checked" Unchecked="PlayTime_Checked" PreviewMouseLeftButtonDown="PlayTimeRadioButton_PreviewMouseLeftButtonDown"/>
+                                <RadioButton x:Name="PlayTime120CheckBox" Content="do 2 hodin" Margin="0,0,10,5" Checked="PlayTime_Checked" Unchecked="PlayTime_Checked" PreviewMouseLeftButtonDown="PlayTimeRadioButton_PreviewMouseLeftButtonDown"/>
+                                <RadioButton x:Name="PlayTimeMoreCheckBox" Content="déle" Margin="0,0,10,5" Checked="PlayTime_Checked" Unchecked="PlayTime_Checked" PreviewMouseLeftButtonDown="PlayTimeRadioButton_PreviewMouseLeftButtonDown"/>
+                            </WrapPanel>
+                        </StackPanel>
+                        <Button Content="🔄 Resetovat filtry" Click="ResetFilters_Click" Background="#FF6C6C" Foreground="White" FontWeight="Bold" FontSize="14" Padding="10,5" Margin="15, 20, 15, 10" BorderThickness="0" Cursor="Hand" HorizontalAlignment="Stretch" BorderBrush="#FF6C6C" Height="40"/>
+                    </StackPanel>
+                </ScrollViewer>
+            </Grid>
+        </Grid>
+    </Grid>
+</Window>
