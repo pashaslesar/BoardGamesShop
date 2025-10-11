@@ -1,6 +1,8 @@
 ﻿using System;
 using System.IO;
 using System.Data.SQLite;
+using System.Data;
+using System.Security.Cryptography;
 
 namespace BoardGamesShop.Data
 {
@@ -210,6 +212,39 @@ namespace BoardGamesShop.Data
                 COMMIT;";
             using (var seedCmd = new SQLiteCommand(seed, con))
                 seedCmd.ExecuteNonQuery();
+
+            EnsureUser(con, userName: "admin", email: "admin@example.com", roleId: 1, plainPassword: "123456");
+            EnsureUser(con, userName: "user", email: "user@example.com", roleId: 2, plainPassword: "123456");
+        }
+
+        private static void EnsureUser(SQLiteConnection con, string userName, string email, int roleId, string plainPassword)
+        {
+            using (var check = new SQLiteCommand("SELECT Id FROM Users WHERE UserName=@u LIMIT 1;", con))
+            {
+                check.Parameters.AddWithValue("@u", userName);
+                var exists = check.ExecuteScalar();
+                if (exists != null) return;
+            }
+
+            byte[] salt = RandomNumberGenerator.GetBytes(16);
+            byte[] hash = Rfc2898DeriveBytes.Pbkdf2(
+                password: plainPassword,
+                salt: salt,
+                iterations: 100_000,
+                hashAlgorithm: HashAlgorithmName.SHA256,
+                outputLength: 32
+            );
+
+            using var cmd = new SQLiteCommand(@"
+                INSERT INTO Users(UserName, Email, RoleId, PasswordHash, PasswordSalt, CreatedAt)
+                VALUES(@u, @e, @r, @h, @s, datetime('now'));
+            ", con);
+            cmd.Parameters.AddWithValue("@u", userName);
+            cmd.Parameters.AddWithValue("@e", string.IsNullOrWhiteSpace(email) ? (object)DBNull.Value : email);
+            cmd.Parameters.AddWithValue("@r", roleId);
+            cmd.Parameters.Add("@h", DbType.Binary, hash.Length).Value = hash;
+            cmd.Parameters.Add("@s", DbType.Binary, salt.Length).Value = salt;
+            cmd.ExecuteNonQuery();
         }
     }
 }
