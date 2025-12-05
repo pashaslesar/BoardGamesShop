@@ -217,6 +217,7 @@ namespace BoardGamesShop.Data
             EnsureUser(con, userName: "user", email: "user@example.com", roleId: 2, plainPassword: "123456");
         }
 
+
         private static void EnsureUser(SQLiteConnection con, string userName, string email, int roleId, string plainPassword)
         {
             using (var check = new SQLiteCommand("SELECT Id FROM Users WHERE UserName=@u LIMIT 1;", con))
