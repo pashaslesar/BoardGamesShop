@@ -1,29 +1,21 @@
 ﻿using System.Windows;
-using BoardGamesShop.Auth;
+using System.Windows.Controls;
+using BoardGamesShop.ViewModels;
 
 namespace BoardGamesShop.Views
 {
     public partial class RegisterWindow : Window
     {
-        public RegisterWindow() => InitializeComponent();
-
-        private void Register_Click(object sender, RoutedEventArgs e)
+        public RegisterWindow()
         {
-            var userName = UserNameBox.Text?.Trim();
-            var email = string.IsNullOrWhiteSpace(EmailBox.Text) ? null : EmailBox.Text.Trim();
-            var password = PasswordBox.Password;
-
-            if (AuthService.Instance.Register(userName, email, password, false, out var err))
-            {
-                DialogResult = true;
-                Close();
-            }
-            else
-            {
-                ErrorText.Text = err;
-            }
+            InitializeComponent();
+            DataContext = new RegisterViewModel();
         }
 
-        private void Cancel_Click(object sender, RoutedEventArgs e) => Close();
+        private void PasswordBox_PasswordChanged(object sender, RoutedEventArgs e)
+        {
+            if (DataContext is RegisterViewModel vm && sender is PasswordBox pb)
+                vm.Password = pb.Password;
+        }
     }
 }
