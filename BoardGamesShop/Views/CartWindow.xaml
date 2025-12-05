@@ -3,51 +3,83 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Košík" Height="420" Width="600" Background="#FFFBEF">
     <DockPanel Margin="10">
-        <TextBlock x:Name="TotalText" DockPanel.Dock="Bottom"
-                   FontWeight="Bold" FontSize="16" Margin="0,8,0,0"/>
-        <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,8,0,0">
+        <TextBlock DockPanel.Dock="Bottom"
+           FontWeight="Bold"
+           FontSize="16"
+           Margin="0,8,0,0"
+           Text="{Binding Total, StringFormat='Celkem: {0},-'}"/>
+
+
+        <StackPanel DockPanel.Dock="Bottom"
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Right"
+                    Margin="0,8,0,0">
             <Button Content="Zavřít"
                     Width="100" Margin="0,0,8,0"
-                    Click="Close_Click"
                     Background="#FF6C6C" Foreground="White"
                     FontWeight="Bold" FontSize="12"
                     Padding="5"
                     BorderThickness="0" Cursor="Hand"
-                    HorizontalAlignment="Stretch" BorderBrush="#FF6C6C" Height="30"/>
-            <Button x:Name="BuyButton" Content="Koupit"
+                    HorizontalAlignment="Stretch" BorderBrush="#FF6C6C" Height="30"
+                    Command="{Binding CloseCommand}"
+                    CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}"/>
+
+            <Button Content="Koupit"
                     Width="100"
-                    Click="BuyButton_Click"
                     Padding="10,4"
                     Background="#4FC0CE" Foreground="White"
                     FontWeight="Bold" FontSize="12"
                     BorderThickness="0" Cursor="Hand"
-                    HorizontalAlignment="Stretch" BorderBrush="#4FC0CE" Height="30"/>
+                    HorizontalAlignment="Stretch" BorderBrush="#4FC0CE" Height="30"
+                    Command="{Binding BuyCommand}"
+                    CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}"
+                    IsEnabled="{Binding HasItems}"/>
         </StackPanel>
 
-        <DataGrid x:Name="Grid"
-                  AutoGenerateColumns="False"
+        <DataGrid AutoGenerateColumns="False"
                   CanUserAddRows="False"
                   HeadersVisibility="Column"
-                  GridLinesVisibility="None">
+                  GridLinesVisibility="None"
+                  ItemsSource="{Binding Items}">
             <DataGrid.Columns>
-                <DataGridTextColumn Header="Hra" Binding="{Binding Game.Name}" Width="*"/>
-                <DataGridTextColumn Header="Cena/ks" Binding="{Binding UnitPrice}" Width="90"/>
+                <DataGridTextColumn Header="Hra"
+                                    Binding="{Binding Game.Name}"
+                                    Width="*"/>
+                <DataGridTextColumn Header="Cena/ks"
+                                    Binding="{Binding UnitPrice}"
+                                    Width="90"/>
                 <DataGridTemplateColumn Header="Počet" Width="120">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
-                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                <Button Content="−" Width="24" Margin="0,0,4,0" Click="Dec_Click"/>
-                                <TextBlock Text="{Binding Quantity}" Width="30" TextAlignment="Center"/>
-                                <Button Content="+" Width="24" Margin="4,0,0,0" Click="Inc_Click"/>
+                            <StackPanel Orientation="Horizontal"
+                                        HorizontalAlignment="Center">
+                                <Button Content="−"
+                                        Width="24" Margin="0,0,4,0"
+                                        Command="{Binding DataContext.DecCommand,
+                                                          RelativeSource={RelativeSource AncestorType=Window}}"
+                                        CommandParameter="{Binding}"/>
+                                <TextBlock Text="{Binding Quantity}"
+                                           Width="30"
+                                           TextAlignment="Center"/>
+                                <Button Content="+"
+                                        Width="24" Margin="4,0,0,0"
+                                        Command="{Binding DataContext.IncCommand,
+                                                          RelativeSource={RelativeSource AncestorType=Window}}"
+                                        CommandParameter="{Binding}"/>
                             </StackPanel>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
-                <DataGridTextColumn Header="Součet" Binding="{Binding LineTotal}" Width="90"/>
+                <DataGridTextColumn Header="Součet"
+                                    Binding="{Binding LineTotal}"
+                                    Width="90"/>
                 <DataGridTemplateColumn Header="Akce" Width="90">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
-                            <Button Content="Smazat" Click="Remove_Click"/>
+                            <Button Content="Smazat"
+                                    Command="{Binding DataContext.RemoveCommand,
+                                                      RelativeSource={RelativeSource AncestorType=Window}}"
+                                    CommandParameter="{Binding}"/>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
