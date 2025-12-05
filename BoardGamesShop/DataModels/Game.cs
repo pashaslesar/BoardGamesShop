@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel;
 
 namespace DataModels
 {
-    public class Game
+    public class Game : INotifyPropertyChanged
     {
         public int Id { get; set; }
         public string Name { get; set; } = "";
@@ -20,7 +16,22 @@ namespace DataModels
         public int Stock { get; set; }
         public bool IsActive { get; set; }
         public string? ImagePath { get; set; }
+
+        private bool _isFavorite;
+        public bool IsFavorite
+        {
+            get => _isFavorite;
+            set
+            {
+                if (_isFavorite != value)
+                {
+                    _isFavorite = value;
+                    PropertyChanged?.Invoke(this,
+                        new PropertyChangedEventArgs(nameof(IsFavorite)));
+                }
+            }
+        }
+
+        public event PropertyChangedEventHandler? PropertyChanged;
     }
-
 }
-

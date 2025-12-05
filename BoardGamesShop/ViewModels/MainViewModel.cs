@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Windows.Input;
 using BoardGamesShop.Auth;
 using DataControll;
 using DataModels;
@@ -11,7 +12,22 @@ namespace BoardGamesShop.ViewModels
 {
     public class MainViewModel : BaseViewModel
     {
-  
+        public event Action? LoginRequested;
+        public event Action? RegisterRequested;
+        public event Action? CartRequested;
+        public event Action? AddGameRequested;
+        public event Action? EditPricesRequested;
+
+        public ICommand LoginCommand { get; }
+        public ICommand RegisterCommand { get; }
+        public ICommand LogoutCommand { get; }
+        public ICommand OpenCartCommand { get; }
+        public ICommand OpenAddGameCommand { get; }
+        public ICommand OpenEditPricesCommand { get; }
+
+        public ICommand AddToCartCommand { get; }
+        public ICommand ToggleFavoriteCommand { get; }
+
         private List<Game> _allGames = new();
         public List<Game> AllGames
         {
@@ -37,7 +53,7 @@ namespace BoardGamesShop.ViewModels
 
         public int CartCount => Cart.Sum(ci => ci.Quantity);
 
-
+        private string _searchText = string.Empty;
         public string SearchText
         {
             get => _searchText;
@@ -47,8 +63,8 @@ namespace BoardGamesShop.ViewModels
                     ApplyAllFilters();
             }
         }
-        private string _searchText = string.Empty;
 
+        private IList<string> _selectedGenres = new List<string>();
         public IList<string> SelectedGenres
         {
             get => _selectedGenres;
@@ -58,8 +74,8 @@ namespace BoardGamesShop.ViewModels
                     ApplyAllFilters();
             }
         }
-        private IList<string> _selectedGenres = new List<string>();
 
+        private int _minPrice = 0;
         public int MinPrice
         {
             get => _minPrice;
@@ -69,8 +85,8 @@ namespace BoardGamesShop.ViewModels
                     ApplyAllFilters();
             }
         }
-        private int _minPrice = 0;
 
+        private int _maxPrice = 99999;
         public int MaxPrice
         {
             get => _maxPrice;
@@ -80,8 +96,8 @@ namespace BoardGamesShop.ViewModels
                     ApplyAllFilters();
             }
         }
-        private int _maxPrice = 99999;
 
+        private int _selectedPlayers = 0;
         public int SelectedPlayers
         {
             get => _selectedPlayers;
@@ -91,8 +107,8 @@ namespace BoardGamesShop.ViewModels
                     ApplyAllFilters();
             }
         }
-        private int _selectedPlayers = 0;
 
+        private bool _filterPlayTime30;
         public bool FilterPlayTime30
         {
             get => _filterPlayTime30;
@@ -102,8 +118,8 @@ namespace BoardGamesShop.ViewModels
                     ApplyAllFilters();
             }
         }
-        private bool _filterPlayTime30;
 
+        private bool _filterPlayTime60;
         public bool FilterPlayTime60
         {
             get => _filterPlayTime60;
@@ -113,8 +129,8 @@ namespace BoardGamesShop.ViewModels
                     ApplyAllFilters();
             }
         }
-        private bool _filterPlayTime60;
 
+        private bool _filterPlayTime120;
         public bool FilterPlayTime120
         {
             get => _filterPlayTime120;
@@ -124,8 +140,8 @@ namespace BoardGamesShop.ViewModels
                     ApplyAllFilters();
             }
         }
-        private bool _filterPlayTime120;
 
+        private bool _filterPlayTimeMore;
         public bool FilterPlayTimeMore
         {
             get => _filterPlayTimeMore;
@@ -135,9 +151,8 @@ namespace BoardGamesShop.ViewModels
                     ApplyAllFilters();
             }
         }
-        private bool _filterPlayTimeMore;
 
-    
+        private int _selectedAge = -1;
         public int SelectedAge
         {
             get => _selectedAge;
@@ -147,13 +162,10 @@ namespace BoardGamesShop.ViewModels
                     ApplyAllFilters();
             }
         }
-        private int _selectedAge = -1;
-
 
         public bool IsLoggedIn => AuthService.Instance.CurrentUser != null;
         public string CurrentUserName => AuthService.Instance.CurrentUser?.UserName ?? string.Empty;
         public bool IsAdmin => AuthService.Instance.CurrentUser?.IsAdmin == true;
-
 
         public MainViewModel()
         {
@@ -163,8 +175,20 @@ namespace BoardGamesShop.ViewModels
                 OnPropertyChanged(nameof(CurrentUserName));
                 OnPropertyChanged(nameof(IsAdmin));
             };
-        }
 
+            LoginCommand = new RelayCommand(_ => LoginRequested?.Invoke());
+            RegisterCommand = new RelayCommand(_ => RegisterRequested?.Invoke());
+            LogoutCommand = new RelayCommand(_ => AuthService.Instance.Logout(), _ => IsLoggedIn);
+            OpenCartCommand = new RelayCommand(_ => CartRequested?.Invoke());
+            OpenAddGameCommand = new RelayCommand(_ => AddGameRequested?.Invoke(), _ => IsAdmin);
+            OpenEditPricesCommand = new RelayCommand(_ => EditPricesRequested?.Invoke(), _ => IsAdmin);
+
+            AddToCartCommand = new RelayCommand(
+                g => { if (g is Game game) AddToCart(game); });
+
+            ToggleFavoriteCommand = new RelayCommand(
+                g => { if (g is Game game) ToggleFavorite(game); });
+        }
 
         public async Task RefreshGamesAsync()
         {
@@ -196,12 +220,19 @@ namespace BoardGamesShop.ViewModels
             var list = FavoriteGames.ToList();
 
             if (list.Any(g => g.Id == game.Id))
+            {
                 list.RemoveAll(g => g.Id == game.Id);
+                game.IsFavorite = false;
+            }
             else
+            {
                 list.Add(game);
+                game.IsFavorite = true;
+            }
 
             FavoriteGames = list;
         }
+
 
         public void AddToCart(Game game)
         {
@@ -215,7 +246,6 @@ namespace BoardGamesShop.ViewModels
 
             OnPropertyChanged(nameof(CartCount));
         }
-
 
         public void ApplyAllFilters()
         {
@@ -275,7 +305,7 @@ namespace BoardGamesShop.ViewModels
 
             if (SelectedAge != -1)
             {
-                List<int> ageGroups = new List<int> { 0, 4, 10, 14, 16, 18 };
+                List<int> ageGroups = new() { 0, 4, 10, 14, 16, 18 };
                 int index = ageGroups.IndexOf(SelectedAge);
 
                 if (index != -1 && index < ageGroups.Count - 1)
@@ -294,6 +324,11 @@ namespace BoardGamesShop.ViewModels
             }
 
             FilteredGames = filteredGames;
+        }
+
+        public void NotifyCartChanged()
+        {
+            OnPropertyChanged(nameof(CartCount));
         }
     }
 }

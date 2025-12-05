@@ -2,10 +2,16 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:models="clr-namespace:DataModels"
+        xmlns:conv="clr-namespace:BoardGamesShop.Converters"
         Title="Obchod deskových her"
         Height="750"
         Width="1100"
         Background="#F5F5DC">
+
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis" />
+        <conv:InverseBooleanToVisibilityConverter x:Key="InverseBoolToVis" />
+    </Window.Resources>
 
     <Grid>
         <Grid.RowDefinitions>
@@ -33,11 +39,12 @@
                         Orientation="Horizontal"
                         VerticalAlignment="Center"
                         Margin="20,0">
+
                 <StackPanel Orientation="Horizontal"
-                            x:Name="GuestPanel">
-                    <Button x:Name="LoginButton"
-                            Content="Přihlásit"
-                            Click="LoginButton_Click"
+                            Visibility="{Binding IsLoggedIn,
+                                                 Converter={StaticResource InverseBoolToVis}}">
+                    <Button Content="Přihlásit"
+                            Command="{Binding LoginCommand}"
                             Background="#FF6C6C"
                             Foreground="White"
                             FontWeight="Bold"
@@ -49,9 +56,8 @@
                             HorizontalAlignment="Stretch"
                             BorderBrush="#FF6C6C"
                             Height="30" />
-                    <Button x:Name="RegisterButton"
-                            Content="Registrovat"
-                            Click="RegisterButton_Click"
+                    <Button Content="Registrovat"
+                            Command="{Binding RegisterCommand}"
                             Background="#FF6C6C"
                             Foreground="White"
                             FontWeight="Bold"
@@ -65,20 +71,19 @@
                             Height="30" />
                 </StackPanel>
 
-                <StackPanel x:Name="UserBlock"
-                            Orientation="Horizontal"
-                            Visibility="Collapsed"
-                            Margin="12,0,0,0">
+                <StackPanel Orientation="Horizontal"
+                            Margin="12,0,0,0"
+                            Visibility="{Binding IsLoggedIn,
+                                                 Converter={StaticResource BoolToVis}}">
                     <TextBlock Text="Uživatel:"
                                VerticalAlignment="Center"
                                Margin="0,0,6,0" />
-                    <TextBlock x:Name="UserNameText"
-                               FontWeight="Bold"
+                    <TextBlock FontWeight="Bold"
                                VerticalAlignment="Center"
-                               Margin="0,0,8,0" />
-                    <Button x:Name="LogoutButton"
-                            Content="Odhlásit"
-                            Click="LogoutButton_Click"
+                               Margin="0,0,8,0"
+                               Text="{Binding CurrentUserName}" />
+                    <Button Content="Odhlásit"
+                            Command="{Binding LogoutCommand}"
                             Background="#FF6C6C"
                             Foreground="White"
                             FontWeight="Bold"
@@ -93,14 +98,14 @@
                 </StackPanel>
             </StackPanel>
 
-            <StackPanel x:Name="AdminPanel"
-                        Grid.Column="2"
-                        Visibility="Collapsed"
+            <StackPanel Grid.Column="2"
                         Orientation="Horizontal"
                         VerticalAlignment="Center"
-                        Margin="10,0">
+                        Margin="10,0"
+                        Visibility="{Binding IsAdmin,
+                                             Converter={StaticResource BoolToVis}}">
                 <Button Content="Přidat hru"
-                        Click="AddGame_Click"
+                        Command="{Binding OpenAddGameCommand}"
                         Background="#FF6C6C"
                         Foreground="White"
                         FontWeight="Bold"
@@ -113,7 +118,7 @@
                         BorderBrush="#FF6C6C"
                         Height="30" />
                 <Button Content="Upravit ceny"
-                        Click="EditPrices_Click"
+                        Command="{Binding OpenEditPricesCommand}"
                         Background="#FF6C6C"
                         Foreground="White"
                         FontWeight="Bold"
@@ -127,15 +132,14 @@
                         Height="30" />
             </StackPanel>
 
-            <Button x:Name="CartButton"
-                    Grid.Column="3"
+            <Button Grid.Column="3"
                     Margin="0,0,12,0"
                     VerticalAlignment="Center"
                     Padding="10,6"
                     Background="#4FC0CE"
                     Foreground="White"
                     BorderBrush="#4FC0CE"
-                    Click="CartButton_Click">
+                    Command="{Binding OpenCartCommand}">
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Text="🛒"
                                Margin="0,0,6,0" />
@@ -144,9 +148,8 @@
                             CornerRadius="10"
                             Margin="8,0,0,0"
                             Padding="6,0">
-                        <TextBlock x:Name="CartCountText"
-                                   Foreground="#4FC0CE"
-                                   Text="0" />
+                        <TextBlock Foreground="#4FC0CE"
+                                   Text="{Binding CartCount}" />
                     </Border>
                 </StackPanel>
             </Button>
@@ -193,14 +196,27 @@
                                                    Stretch="UniformToFill"
                                                    Loaded="GameImage_Loaded" />
 
-                                            <Button Content="🤍"
-                                                    HorizontalAlignment="Right"
+                                            <Button HorizontalAlignment="Right"
                                                     Background="Transparent"
                                                     BorderBrush="Transparent"
                                                     FontSize="16"
                                                     Cursor="Hand"
                                                     Margin="5,0,5,0"
-                                                    Click="ToggleFavorite_Click" /> 
+                                                    Command="{Binding DataContext.ToggleFavoriteCommand,
+                                                                      RelativeSource={RelativeSource AncestorType=Window}}"
+                                                    CommandParameter="{Binding}">
+                                                <Button.Style>
+                                                    <Style TargetType="Button">
+                                                        <Setter Property="Content" Value="🤍" />
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding IsFavorite}" Value="True">
+                                                                <Setter Property="Content" Value="❤️" />
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </Button.Style>
+                                            </Button>
+
 
                                             <Button Content="Do košíku"
                                                     Margin="5,0,5,5"
@@ -209,8 +225,9 @@
                                                     Foreground="White"
                                                     BorderBrush="#4FC0CE"
                                                     Cursor="Hand"
-                                                    Click="AddToCart_Click" />
-
+                                                    Command="{Binding DataContext.AddToCartCommand,
+                                                                      RelativeSource={RelativeSource AncestorType=Window}}"
+                                                    CommandParameter="{Binding}" />
 
                                             <WrapPanel HorizontalAlignment="Left"
                                                        Margin="5,0,5,5">
@@ -312,14 +329,27 @@
                                                    Stretch="UniformToFill"
                                                    Loaded="GameImage_Loaded" />
 
-                                            <Button Content="❤️"
-                                                    HorizontalAlignment="Right"
+                                            <Button HorizontalAlignment="Right"
                                                     Background="Transparent"
                                                     BorderBrush="Transparent"
                                                     FontSize="16"
                                                     Cursor="Hand"
                                                     Margin="5,0,5,0"
-                                                    Click="ToggleFavorite_Click" />
+                                                    Command="{Binding DataContext.ToggleFavoriteCommand,
+                                                                      RelativeSource={RelativeSource AncestorType=Window}}"
+                                                    CommandParameter="{Binding}">
+                                                <Button.Style>
+                                                    <Style TargetType="Button">
+                                                        <Setter Property="Content" Value="🤍" />
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding IsFavorite}" Value="True">
+                                                                <Setter Property="Content" Value="❤️" />
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </Button.Style>
+                                            </Button>
+
 
                                             <Button Content="Do košíku"
                                                     Margin="5,0,5,5"
@@ -328,8 +358,9 @@
                                                     Foreground="White"
                                                     BorderBrush="#4FC0CE"
                                                     Cursor="Hand"
-                                                    Click="AddToCart_Click" />
-
+                                                    Command="{Binding DataContext.AddToCartCommand,
+                                                                      RelativeSource={RelativeSource AncestorType=Window}}"
+                                                    CommandParameter="{Binding}" />
 
                                             <WrapPanel HorizontalAlignment="Left"
                                                        Margin="5,0,5,5">

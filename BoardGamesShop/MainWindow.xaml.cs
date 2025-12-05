@@ -25,32 +25,66 @@ namespace BoardGamesShop
         {
             InitializeComponent();
 
-            DataContext = new MainViewModel();
+            var vm = new MainViewModel();
+            DataContext = vm;
 
-            WireAuthUi();
+            vm.LoginRequested += OnLoginRequested;
+            vm.RegisterRequested += OnRegisterRequested;
+            vm.CartRequested += OnCartRequested;
+            vm.AddGameRequested += OnAddGameRequested;
+            vm.EditPricesRequested += OnEditPricesRequested;
+
             LoadGenres();
-            UpdateCartBadge();
             _ = RefreshGamesAsync();
         }
 
 
-        private void WireAuthUi()
+        private void OnLoginRequested()
         {
-            AuthService.Instance.CurrentUserChanged += UpdateAuthUi;
-            UpdateAuthUi();
+            var dlg = new LoginWindow { Owner = this };
+            dlg.ShowDialog();
         }
 
-        private void UpdateAuthUi()
+        private void OnRegisterRequested()
         {
-            var u = AuthService.Instance.CurrentUser;
+            var dlg = new RegisterWindow { Owner = this };
+            dlg.ShowDialog();
+        }
 
-            LoginButton.Visibility = (u == null) ? Visibility.Visible : Visibility.Collapsed;
-            RegisterButton.Visibility = (u == null) ? Visibility.Visible : Visibility.Collapsed;
+        private void OnCartRequested()
+        {
+            var dlg = new CartWindow(Vm.Cart)
+            {
+                Owner = this,
+                WhenChanged = Vm.NotifyCartChanged
+            };
+            dlg.ShowDialog();
+        }
 
-            UserBlock.Visibility = (u == null) ? Visibility.Collapsed : Visibility.Visible;
-            UserNameText.Text = u?.UserName ?? string.Empty;
+        private async void OnAddGameRequested()
+        {
+            if (AuthService.Instance.CurrentUser?.IsAdmin != true)
+            {
+                MessageBox.Show("Tuto akci může provést pouze administrátor.");
+                return;
+            }
 
-            AdminPanel.Visibility = (u?.IsAdmin == true) ? Visibility.Visible : Visibility.Collapsed;
+            var dlg = new AddGameWindow { Owner = this };
+            if (dlg.ShowDialog() == true)
+                await RefreshGamesAsync();
+        }
+
+        private async void OnEditPricesRequested()
+        {
+            if (AuthService.Instance.CurrentUser?.IsAdmin != true)
+            {
+                MessageBox.Show("Tuto акци může provést pouze administrátor.");
+                return;
+            }
+
+            var dlg = new EditPricesWindow { Owner = this };
+            if (dlg.ShowDialog() == true)
+                await RefreshGamesAsync();
         }
 
 
@@ -73,11 +107,6 @@ namespace BoardGamesShop
         {
             var genres = DBController.GetGenres();
             GenresList.ItemsSource = genres;
-        }
-
-        private void UpdateCartBadge()
-        {
-            CartCountText.Text = Vm.CartCount.ToString();
         }
 
 
@@ -107,11 +136,7 @@ namespace BoardGamesShop
             img.Source = bi;
         }
 
-
-        private void ApplyAllFilters()
-        {
-            Vm.ApplyAllFilters();
-        }
+        private void ApplyAllFilters() => Vm.ApplyAllFilters();
 
         private void SearchBox_TextChanged(object sender, TextChangedEventArgs e)
         {
@@ -252,68 +277,8 @@ namespace BoardGamesShop
             Age18RadioButton.IsChecked = false;
 
             Vm.ResetFilters();
-            UpdateCartBadge();
         }
 
-
-        private void AddToCart_Click(object sender, RoutedEventArgs e)
-        {
-            if (sender is Button btn && btn.DataContext is Game game)
-            {
-                Vm.AddToCart(game);
-                UpdateCartBadge();
-            }
-        }
-
-        private void ToggleFavorite_Click(object sender, RoutedEventArgs e)
-        {
-            if (sender is not Button btn) return;
-            if (btn.DataContext is not Game game) return;
-
-            Vm.ToggleFavorite(game);
-
-            bool isNowFavorite = Vm.FavoriteGames.Any(g => g.Id == game.Id);
-
-            btn.Content = isNowFavorite ? "❤️" : "🤍";
-        }
-
-
-
-        private void LoginButton_Click(object sender, RoutedEventArgs e)
-        {
-            var dlg = new LoginWindow { Owner = this };
-            if (dlg.ShowDialog() == true) { }
-        }
-
-        private void RegisterButton_Click(object sender, RoutedEventArgs e)
-        {
-            var dlg = new RegisterWindow { Owner = this };
-            if (dlg.ShowDialog() == true) { }
-        }
-
-        private void LogoutButton_Click(object sender, RoutedEventArgs e)
-        {
-            AuthService.Instance.Logout();
-        }
-
-        private void CartButton_Click(object sender, RoutedEventArgs e)
-        {
-            var dlg = new CartWindow(Vm.Cart) { Owner = this, WhenChanged = UpdateCartBadge };
-            dlg.ShowDialog();
-        }
-
-        private async void AddGame_Click(object sender, RoutedEventArgs e)
-        {
-            if (AuthService.Instance.CurrentUser?.IsAdmin != true)
-            {
-                MessageBox.Show("Tuto akci může provést pouze administrátor.");
-                return;
-            }
-
-            var dlg = new AddGameWindow { Owner = this };
-            if (dlg.ShowDialog() == true)
-                await RefreshGamesAsync();
-        }
         private void AuthorBlock_Loaded(object sender, RoutedEventArgs e)
         {
             if (sender is not TextBlock tb) return;
@@ -333,20 +298,6 @@ namespace BoardGamesShop
 
             var genres = DBController.GetGenreNamesByGameId(game.Id);
             ic.ItemsSource = genres;
-        }
-
-
-        private async void EditPrices_Click(object sender, RoutedEventArgs e)
-        {
-            if (AuthService.Instance.CurrentUser?.IsAdmin != true)
-            {
-                MessageBox.Show("Tuto akci může provést pouze administrátor.");
-                return;
-            }
-
-            var dlg = new EditPricesWindow { Owner = this };
-            if (dlg.ShowDialog() == true)
-                await RefreshGamesAsync();
         }
     }
 }
