@@ -33,7 +33,6 @@ namespace BoardGamesShop
             _ = RefreshGamesAsync();
         }
 
-        // ---------- Авторизация ----------
 
         private void WireAuthUi()
         {
@@ -54,14 +53,12 @@ namespace BoardGamesShop
             AdminPanel.Visibility = (u?.IsAdmin == true) ? Visibility.Visible : Visibility.Collapsed;
         }
 
-        // ---------- Загрузка данных ----------
 
         private async Task RefreshGamesAsync()
         {
             try
             {
                 await Vm.RefreshGamesAsync();
-                // ItemsControl сам подхватит FilteredGames/FavoriteGames
             }
             catch (Exception ex)
             {
@@ -83,7 +80,6 @@ namespace BoardGamesShop
             CartCountText.Text = Vm.CartCount.ToString();
         }
 
-        // ---------- Картинки игр (Image.Loaded) ----------
 
         private async void GameImage_Loaded(object sender, RoutedEventArgs e)
         {
@@ -111,12 +107,10 @@ namespace BoardGamesShop
             img.Source = bi;
         }
 
-        // ---------- Фильтры ----------
 
         private void ApplyAllFilters()
         {
             Vm.ApplyAllFilters();
-            // ItemsControl сам обновится, потому что FilteredGames переприсвоится
         }
 
         private void SearchBox_TextChanged(object sender, TextChangedEventArgs e)
@@ -235,7 +229,6 @@ namespace BoardGamesShop
 
         private void ResetFilters_Click(object sender, RoutedEventArgs e)
         {
-            // UI
             SearchBox.Text = "";
             GenresList.SelectedItem = null;
             PriceFromTextBox.Text = "";
@@ -258,12 +251,10 @@ namespace BoardGamesShop
             Age16RadioButton.IsChecked = false;
             Age18RadioButton.IsChecked = false;
 
-            // VM
             Vm.ResetFilters();
             UpdateCartBadge();
         }
 
-        // ---------- Кнопки в карточке игры ----------
 
         private void AddToCart_Click(object sender, RoutedEventArgs e)
         {
@@ -287,7 +278,6 @@ namespace BoardGamesShop
         }
 
 
-        // ---------- Навигация / окна ----------
 
         private void LoginButton_Click(object sender, RoutedEventArgs e)
         {
@@ -324,7 +314,6 @@ namespace BoardGamesShop
             if (dlg.ShowDialog() == true)
                 await RefreshGamesAsync();
         }
-        // Автор (TextBlock.Loaded)
         private void AuthorBlock_Loaded(object sender, RoutedEventArgs e)
         {
             if (sender is not TextBlock tb) return;
@@ -337,7 +326,6 @@ namespace BoardGamesShop
             tb.Text = $"Autor: {authorName}";
         }
 
-        // Жанры (ItemsControl.Loaded)
         private void GenresItems_Loaded(object sender, RoutedEventArgs e)
         {
             if (sender is not ItemsControl ic) return;

@@ -1,25 +1,23 @@
 ﻿using System.Windows;
-using BoardGamesShop.Auth;
+using System.Windows.Controls;
+using BoardGamesShop.ViewModels;
 
 namespace BoardGamesShop.Views
 {
     public partial class LoginWindow : Window
     {
-        public LoginWindow() => InitializeComponent();
-
-        private void Login_Click(object sender, RoutedEventArgs e)
+        public LoginWindow()
         {
-            if (AuthService.Instance.Login(UserOrEmailBox.Text, PasswordBox.Password, out var err))
-            {
-                DialogResult = true;
-                Close();
-            }
-            else
-            {
-                ErrorText.Text = err;
-            }
+            InitializeComponent();
+            DataContext = new LoginViewModel();
         }
 
-        private void Cancel_Click(object sender, RoutedEventArgs e) => Close();
+        private void PasswordBox_PasswordChanged(object sender, RoutedEventArgs e)
+        {
+            if (DataContext is LoginViewModel vm && sender is PasswordBox pb)
+            {
+                vm.Password = pb.Password;
+            }
+        }
     }
 }

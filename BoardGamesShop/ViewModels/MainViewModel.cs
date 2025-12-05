@@ -11,9 +11,7 @@ namespace BoardGamesShop.ViewModels
 {
     public class MainViewModel : BaseViewModel
     {
-        // ===== ДАННЫЕ =====
-
-        // Все загруженные игры из БД
+  
         private List<Game> _allGames = new();
         public List<Game> AllGames
         {
@@ -21,7 +19,6 @@ namespace BoardGamesShop.ViewModels
             private set => SetField(ref _allGames, value);
         }
 
-        // Отфильтрованные игры – именно их ты рисуешь в gamePanel
         private List<Game> _filteredGames = new();
         public List<Game> FilteredGames
         {
@@ -29,7 +26,6 @@ namespace BoardGamesShop.ViewModels
             private set => SetField(ref _filteredGames, value);
         }
 
-        // Избранное
         private List<Game> _favoriteGames = new();
         public List<Game> FavoriteGames
         {
@@ -37,12 +33,10 @@ namespace BoardGamesShop.ViewModels
             private set => SetField(ref _favoriteGames, value);
         }
 
-        // Для корзины – лучше хранить её тоже во VM
         public ObservableCollection<CartItem> Cart { get; } = new();
 
         public int CartCount => Cart.Sum(ci => ci.Quantity);
 
-        // ===== ФИЛЬТРЫ =====
 
         public string SearchText
         {
@@ -55,7 +49,6 @@ namespace BoardGamesShop.ViewModels
         }
         private string _searchText = string.Empty;
 
-        // Выбранные жанры (по именам)
         public IList<string> SelectedGenres
         {
             get => _selectedGenres;
@@ -144,9 +137,7 @@ namespace BoardGamesShop.ViewModels
         }
         private bool _filterPlayTimeMore;
 
-        /// <summary>
-        /// -1 = нет фильтра, иначе 0/4/10/14/16/18 как у тебя.
-        /// </summary>
+    
         public int SelectedAge
         {
             get => _selectedAge;
@@ -158,7 +149,6 @@ namespace BoardGamesShop.ViewModels
         }
         private int _selectedAge = -1;
 
-        // ===== АВТОРИЗАЦИЯ (только состояние, без UI) =====
 
         public bool IsLoggedIn => AuthService.Instance.CurrentUser != null;
         public string CurrentUserName => AuthService.Instance.CurrentUser?.UserName ?? string.Empty;
@@ -167,7 +157,6 @@ namespace BoardGamesShop.ViewModels
 
         public MainViewModel()
         {
-            // подписка на смену пользователя
             AuthService.Instance.CurrentUserChanged += () =>
             {
                 OnPropertyChanged(nameof(IsLoggedIn));
@@ -176,7 +165,6 @@ namespace BoardGamesShop.ViewModels
             };
         }
 
-        // ========= ПУБЛИЧНЫЕ МЕТОДЫ, КОТОРЫЕ БУДЕТ ВЫЗЫВАТЬ MainWindow =========
 
         public async Task RefreshGamesAsync()
         {
@@ -198,7 +186,6 @@ namespace BoardGamesShop.ViewModels
             FilterPlayTimeMore = false;
             SelectedAge = -1;
 
-            // ApplyAllFilters уже вызовется из сеттеров, но на всякий случай:
             ApplyAllFilters();
         }
 
@@ -229,13 +216,11 @@ namespace BoardGamesShop.ViewModels
             OnPropertyChanged(nameof(CartCount));
         }
 
-        // ========= ГЛАВНЫЙ МЕТОД ФИЛЬТРАЦИИ – ПЕРЕНОС ТВОЕЙ ApplyAllFilters =========
 
         public void ApplyAllFilters()
         {
             var filteredGames = new List<Game>(AllGames);
 
-            // --- текстовый поиск
             var query = (SearchText ?? string.Empty).Trim().ToLower();
             if (!string.IsNullOrEmpty(query))
             {
@@ -244,7 +229,6 @@ namespace BoardGamesShop.ViewModels
                     .ToList();
             }
 
-            // --- жанры
             if (SelectedGenres != null && SelectedGenres.Count > 0)
             {
                 List<int> selectedGenreIds = SelectedGenres
@@ -261,7 +245,6 @@ namespace BoardGamesShop.ViewModels
                     .ToList();
             }
 
-            // --- цена
             int minPrice = MinPrice < 0 ? 0 : MinPrice;
             int maxPrice = MaxPrice <= 0 ? int.MaxValue : MaxPrice;
 
@@ -269,7 +252,6 @@ namespace BoardGamesShop.ViewModels
                 .Where(game => game.Price >= minPrice && game.Price <= maxPrice)
                 .ToList();
 
-            // --- количество игроков
             if (SelectedPlayers > 0)
             {
                 filteredGames = filteredGames
@@ -277,7 +259,6 @@ namespace BoardGamesShop.ViewModels
                     .ToList();
             }
 
-            // --- время игры
             List<Func<int, bool>> timeFilters = new();
 
             if (FilterPlayTime30) timeFilters.Add(time => time <= 30);
@@ -292,7 +273,6 @@ namespace BoardGamesShop.ViewModels
                     .ToList();
             }
 
-            // --- возраст
             if (SelectedAge != -1)
             {
                 List<int> ageGroups = new List<int> { 0, 4, 10, 14, 16, 18 };
