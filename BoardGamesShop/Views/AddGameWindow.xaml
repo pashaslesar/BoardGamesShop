@@ -6,22 +6,28 @@
         WindowStartupLocation="CenterOwner"
         Background="#FFFBEF">
     <ScrollViewer>
-        <StackPanel Margin="20" VerticalAlignment="Top" >
+        <StackPanel Margin="20" VerticalAlignment="Top">
 
             <TextBlock Text="Název hry:" FontWeight="Bold"/>
-            <TextBox x:Name="NameBox" Margin="0,5,0,10"/>
+            <TextBox x:Name="NameBox" Margin="0,5,0,10"
+                     Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}"/>
 
             <TextBlock Text="Autor (jméno):" FontWeight="Bold"/>
-            <TextBox x:Name="AuthorNameBox" Margin="0,5,0,10"/>
+            <TextBox x:Name="AuthorNameBox" Margin="0,5,0,10"
+                     Text="{Binding AuthorName, UpdateSourceTrigger=PropertyChanged}"/>
 
             <TextBlock Text="Země autora:" FontWeight="Bold"/>
-            <TextBox x:Name="AuthorCountryBox" Margin="0,5,0,10"/>
+            <TextBox x:Name="AuthorCountryBox" Margin="0,5,0,10"
+                     Text="{Binding AuthorCountry, UpdateSourceTrigger=PropertyChanged}"/>
 
             <TextBlock Text="Žánry (max 5):" FontWeight="Bold"/>
             <DockPanel Margin="0,5,0,5">
-                <ComboBox x:Name="GenreComboBox" Width="260" Margin="0,0,8,0"/>
+                <ComboBox x:Name="GenreComboBox"
+                          Width="260" Margin="0,0,8,0"
+                          ItemsSource="{Binding AllGenres}"
+                          SelectedItem="{Binding SelectedGenre}"/>
                 <Button Content="➕ Přidat žánr"
-                        Click="AddGenre_Click"
+                        Command="{Binding AddGenreCommand}"
                         Background="#FF9A895F"
                         Foreground="White"
                         FontWeight="Bold"
@@ -29,7 +35,9 @@
                         BorderBrush="#FF9A895F"/>
             </DockPanel>
 
-            <ItemsControl x:Name="SelectedGenresPanel" Margin="0,0,0,10">
+            <ItemsControl x:Name="SelectedGenresPanel"
+                          Margin="0,0,0,10"
+                          ItemsSource="{Binding SelectedGenres}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
                         <Border Background="#EAE0C8" Margin="2" Padding="5" CornerRadius="5">
@@ -41,7 +49,9 @@
                                         Background="Transparent"
                                         BorderThickness="0"
                                         Cursor="Hand"
-                                        Click="RemoveGenre_Click"/>
+                                        Command="{Binding DataContext.RemoveGenreCommand,
+                                                          RelativeSource={RelativeSource AncestorType=Window}}"
+                                        CommandParameter="{Binding}"/>
                             </StackPanel>
                         </Border>
                     </DataTemplate>
@@ -54,23 +64,30 @@
             </ItemsControl>
 
             <TextBlock Text="Min hráčů:" FontWeight="Bold"/>
-            <TextBox x:Name="MinPlayersBox" Margin="0,5,0,10"/>
+            <TextBox x:Name="MinPlayersBox" Margin="0,5,0,10"
+                     Text="{Binding MinPlayersText, UpdateSourceTrigger=PropertyChanged}"/>
 
             <TextBlock Text="Max hráčů:" FontWeight="Bold"/>
-            <TextBox x:Name="MaxPlayersBox" Margin="0,5,0,10"/>
+            <TextBox x:Name="MaxPlayersBox" Margin="0,5,0,10"
+                     Text="{Binding MaxPlayersText, UpdateSourceTrigger=PropertyChanged}"/>
 
             <TextBlock Text="Doba hraní (min):" FontWeight="Bold"/>
-            <TextBox x:Name="PlayTimeBox" Margin="0,5,0,10"/>
+            <TextBox x:Name="PlayTimeBox" Margin="0,5,0,10"
+                     Text="{Binding PlayTimeText, UpdateSourceTrigger=PropertyChanged}"/>
 
             <TextBlock Text="Cena (Kč):" FontWeight="Bold"/>
-            <TextBox x:Name="PriceBox" Margin="0,5,0,10"/>
+            <TextBox x:Name="PriceBox" Margin="0,5,0,10"
+                     Text="{Binding PriceText, UpdateSourceTrigger=PropertyChanged}"/>
 
             <TextBlock Text="Věk:" FontWeight="Bold"/>
-            <TextBox x:Name="AgeBox" Margin="0,5,0,10"/>
+            <TextBox x:Name="AgeBox" Margin="0,5,0,10"
+                     Text="{Binding AgeText, UpdateSourceTrigger=PropertyChanged}"/>
 
             <TextBlock Text="Cesta k obrázku (Assets/images/Dixit.png):" FontWeight="Bold"/>
             <DockPanel Margin="0,5,0,20">
-                <TextBox x:Name="ImagePathBox" Margin="0,0,8,0" Width="330"/>
+                <TextBox x:Name="ImagePathBox"
+                         Margin="0,0,8,0" Width="330"
+                         Text="{Binding ImagePath, UpdateSourceTrigger=PropertyChanged}"/>
                 <Button Content="Hledat..."
                         Width="85"
                         Background="#FF9A895F"
@@ -84,19 +101,21 @@
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                 <Button Content="Zrušit"
                         Margin="0,0,8,0"
-                        Click="Cancel_Click"
                         Background="#FF9A895F"
                         Foreground="White"
                         FontWeight="Bold"
                         Padding="10,6"
-                        BorderBrush="#FF9A895F"/>
+                        BorderBrush="#FF9A895F"
+                        Command="{Binding CancelCommand}"
+                        CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}"/>
                 <Button Content="✅ Přidat hru"
-                        Click="AddGame_Click"
                         Background="#FF9A895F"
                         Foreground="White"
                         FontWeight="Bold"
                         Padding="10,6"
-                        BorderBrush="#FF9A895F"/>
+                        BorderBrush="#FF9A895F"
+                        Command="{Binding AddGameCommand}"
+                        CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}"/>
             </StackPanel>
         </StackPanel>
     </ScrollViewer>
